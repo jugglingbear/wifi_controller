@@ -6,7 +6,7 @@ skinparam groupInheritance 2
 
 title wifi_controller — Class Diagram
 
-package "wifi_controller._types" {
+package "wifi_controller.types" {
     class SSIDInfo <<dataclass>> {
         +ssid : str
         +bssid : str
@@ -17,7 +17,7 @@ package "wifi_controller._types" {
     class WiFiConnectionError <<Exception>>
 }
 
-package "wifi_controller._abc" {
+package "wifi_controller.abc" {
     abstract class CurrentSSIDProvider {
         +{abstract} name : str
         +{abstract} is_available() : bool
@@ -78,7 +78,7 @@ package "wifi_controller (orchestrator)" {
     }
 }
 
-package "wifi_controller._macos" <<macOS>> #LightYellow {
+package "wifi_controller.macos" <<macOS>> #LightYellow {
     class NetworkSetupCurrentSSID
     class IpconfigCurrentSSID
     class SystemProfilerScan
@@ -86,7 +86,7 @@ package "wifi_controller._macos" <<macOS>> #LightYellow {
     class NetworkSetupDisconnect
 }
 
-package "wifi_controller._linux" <<Linux>> #LightBlue {
+package "wifi_controller.linux" <<Linux>> #LightBlue {
     class NmcliCurrentSSID
     class NmcliScan
     class NmcliConnect
@@ -94,7 +94,7 @@ package "wifi_controller._linux" <<Linux>> #LightBlue {
     class IwgetidCurrentSSID
 }
 
-package "wifi_controller._swift" <<macOS 15+ extras>> #LightGreen {
+package "wifi_controller.swift" <<macOS 15+ extras>> #LightGreen {
     class SwiftSsidScannerCurrentSSID
     class SwiftSsidScannerScan
     class SwiftSsidScannerConnect

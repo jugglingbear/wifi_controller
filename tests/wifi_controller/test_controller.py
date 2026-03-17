@@ -8,8 +8,8 @@ from unittest.mock import patch
 
 import pytest
 
-from wifi_controller import WiFiConnectionError, WiFiController, _macos_major
-from wifi_controller._types import SSIDInfo
+from wifi_controller import WiFiConnectionError, WiFiController, macos_major
+from wifi_controller.types import SSIDInfo
 
 from _fakes import FakeConnect, FakeCurrentSSID, FakeDisconnect, FakeScan
 
@@ -219,27 +219,27 @@ class TestScanForSSID:
 class TestIsWifiEnabled:
     """WiFiController.is_wifi_enabled() across platforms."""
 
-    def test_macos_wifi_on(self, ctrl: WiFiController) -> None:
+    def testmacos_wifi_on(self, ctrl: WiFiController) -> None:
         ctrl._os_name = "Darwin"
         with patch("wifi_controller.subprocess.check_output", return_value="Wi-Fi Power (en0): On"):
             assert ctrl.is_wifi_enabled() is True
 
-    def test_macos_wifi_off(self, ctrl: WiFiController) -> None:
+    def testmacos_wifi_off(self, ctrl: WiFiController) -> None:
         ctrl._os_name = "Darwin"
         with patch("wifi_controller.subprocess.check_output", return_value="Wi-Fi Power (en0): Off"):
             assert ctrl.is_wifi_enabled() is False
 
-    def test_macos_command_fails_assumes_on(self, ctrl: WiFiController) -> None:
+    def testmacos_command_fails_assumes_on(self, ctrl: WiFiController) -> None:
         ctrl._os_name = "Darwin"
         with patch("wifi_controller.subprocess.check_output", side_effect=OSError("not found")):
             assert ctrl.is_wifi_enabled() is True
 
-    def test_linux_wifi_enabled(self, ctrl: WiFiController) -> None:
+    def testlinux_wifi_enabled(self, ctrl: WiFiController) -> None:
         ctrl._os_name = "Linux"
         with patch("wifi_controller.subprocess.check_output", return_value="enabled\n"):
             assert ctrl.is_wifi_enabled() is True
 
-    def test_linux_wifi_disabled(self, ctrl: WiFiController) -> None:
+    def testlinux_wifi_disabled(self, ctrl: WiFiController) -> None:
         ctrl._os_name = "Linux"
         with patch("wifi_controller.subprocess.check_output", return_value="disabled\n"):
             assert ctrl.is_wifi_enabled() is False
@@ -260,7 +260,7 @@ class TestDetectInterface:
     def test_darwin_returns_en0(self) -> None:
         assert WiFiController._detect_interface("Darwin") == "en0"
 
-    def test_linux_fallback_wlan0(self) -> None:
+    def testlinux_fallback_wlan0(self) -> None:
         with patch("wifi_controller.Path") as mock_path:
             mock_path.return_value.iterdir.side_effect = OSError("no sysfs")
             assert WiFiController._detect_interface("Linux") == "wlan0"
@@ -288,7 +288,7 @@ class TestProperties:
             info = ctrl.platform_info
         assert "TestOS" in info
 
-    def test_platform_info_macos(self) -> None:
+    def test_platform_infomacos(self) -> None:
         with patch("wifi_controller.platform") as mock_platform:
             mock_platform.system.return_value = "Darwin"
             mock_platform.mac_ver.return_value = ("15.5", ("", "", ""), "")
@@ -363,9 +363,9 @@ class TestProviderCache:
 class TestSetupBuiltinProviders:
     """_setup_builtin_providers installs platform-appropriate providers."""
 
-    def test_macos_14_registers_networksetup(self) -> None:
+    def testmacos_14_registers_networksetup(self) -> None:
         with patch("wifi_controller.platform") as mock_platform, \
-             patch("wifi_controller._macos_major", return_value=14):
+             patch("wifi_controller.macos_major", return_value=14):
             mock_platform.system.return_value = "Darwin"
             mock_platform.mac_ver.return_value = ("14.5", ("", "", ""), "")
             mock_platform.release.return_value = "23.5.0"
@@ -375,9 +375,9 @@ class TestSetupBuiltinProviders:
         assert any(p.provider.name == "networksetup" for p in wc._current_providers)
         assert any(p.provider.name == "system_profiler" for p in wc._scan_providers)
 
-    def test_macos_15_registers_ipconfig(self) -> None:
+    def testmacos_15_registers_ipconfig(self) -> None:
         with patch("wifi_controller.platform") as mock_platform, \
-             patch("wifi_controller._macos_major", return_value=15):
+             patch("wifi_controller.macos_major", return_value=15):
             mock_platform.system.return_value = "Darwin"
             mock_platform.mac_ver.return_value = ("15.5", ("", "", ""), "")
             mock_platform.release.return_value = "24.5.0"
@@ -387,9 +387,9 @@ class TestSetupBuiltinProviders:
         # No scan provider on macOS 15+ (SSIDs redacted)
         assert len(wc._scan_providers) == 0
 
-    def test_linux_with_nmcli(self) -> None:
+    def testlinux_with_nmcli(self) -> None:
         with patch("wifi_controller.platform") as mock_platform, \
-             patch("wifi_controller._linux.shutil.which", return_value="/usr/bin/nmcli"):
+             patch("wifi_controller.linux.shutil.which", return_value="/usr/bin/nmcli"):
             mock_platform.system.return_value = "Linux"
             mock_platform.mac_ver.return_value = ("", ("", "", ""), "")
             mock_platform.release.return_value = "6.1.0"
@@ -407,30 +407,30 @@ class TestSetupBuiltinProviders:
 
 
 # ---------------------------------------------------------------------------
-# _macos_major helper
+# macos_major helper
 # ---------------------------------------------------------------------------
 
 
 class TestMacosMajor:
-    """Module-level _macos_major() helper."""
+    """Module-level macos_major() helper."""
 
     def test_parses_15_5(self) -> None:
         with patch("wifi_controller.platform.mac_ver", return_value=("15.5", ("", "", ""), "")):
-            assert _macos_major() == 15
+            assert macos_major() == 15
 
     def test_parses_14_0(self) -> None:
         with patch("wifi_controller.platform.mac_ver", return_value=("14.0", ("", "", ""), "")):
-            assert _macos_major() == 14
+            assert macos_major() == 14
 
     def test_parses_13_7_2(self) -> None:
         with patch("wifi_controller.platform.mac_ver", return_value=("13.7.2", ("", "", ""), "")):
-            assert _macos_major() == 13
+            assert macos_major() == 13
 
     def test_empty_version_returns_zero(self) -> None:
         with patch("wifi_controller.platform.mac_ver", return_value=("", ("", "", ""), "")):
-            assert _macos_major() == 0
+            assert macos_major() == 0
 
-    def test_linux_returns_zero(self) -> None:
+    def testlinux_returns_zero(self) -> None:
         """Non-macOS returns empty mac_ver → 0."""
         with patch("wifi_controller.platform.mac_ver", return_value=("", ("", "", ""), "")):
-            assert _macos_major() == 0
+            assert macos_major() == 0

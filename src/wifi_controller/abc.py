@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from wifi_controller._types import SSIDInfo
+from wifi_controller.types import SSIDInfo
 
 
 class CurrentSSIDProvider(ABC):

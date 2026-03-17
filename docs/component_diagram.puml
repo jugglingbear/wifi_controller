@@ -13,11 +13,11 @@ package "PyPI: wifi-controller" <<pypi>> {
 
     component "wifi_controller" as pkg {
         [__init__.py\nWiFiController] as init
-        [_types.py\nSSIDInfo, WiFiConnectionError] as types
-        [_abc.py\nProvider ABCs] as abc
-        [_macos.py\nmacOS providers] as macos
-        [_linux.py\nLinux providers] as linux
-        [_swift.py\nSwift binary wrappers] as swift
+        [types.py\nSSIDInfo, WiFiConnectionError] as types
+        [abc.py\nProvider ABCs] as abc
+        [macos.py\nmacOS providers] as macos
+        [linux.py\nLinux providers] as linux
+        [swift.py\nSwift binary wrappers] as swift
     }
 
     init --> types
@@ -36,11 +36,11 @@ package "PyPI: wifi-controller" <<pypi>> {
 
 package "Git repo only (extras/)" <<extras>> {
     component "ssid_scanner" as scanner {
-        [scan.swift\nCoreWLAN + CoreLocation] as scan_swift
+        [scan.swift\nCoreWLAN + CoreLocation] as scanswift
         [Makefile\nbuild + sign] as makefile
         [*.plist\nentitlements + info] as plists
     }
-    makefile --> scan_swift
+    makefile --> scanswift
     makefile --> plists
 }
 
@@ -73,8 +73,8 @@ scanner --> cwlan
 
 note bottom of pkg
   **pip install wifi-controller**
-  Ships: __init__, _types, _abc,
-  _macos, _linux, _swift
+  Ships: __init__, types, abc,
+  macos, linux, swift
   (all pure Python)
 end note
 

@@ -3,13 +3,13 @@
 from __future__ import annotations
 
 from wifi_controller import WiFiConnectionError
-from wifi_controller._abc import (
+from wifi_controller.abc import (
     CurrentSSIDProvider,
     SSIDConnectProvider,
     SSIDDisconnectProvider,
     SSIDScanProvider,
 )
-from wifi_controller._types import SSIDInfo
+from wifi_controller.types import SSIDInfo
 
 
 class FakeCurrentSSID(CurrentSSIDProvider):

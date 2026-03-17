@@ -6,13 +6,13 @@ import contextlib
 import shutil
 import subprocess
 
-from wifi_controller._abc import (
+from wifi_controller.abc import (
     CurrentSSIDProvider,
     SSIDConnectProvider,
     SSIDDisconnectProvider,
     SSIDScanProvider,
 )
-from wifi_controller._types import SSIDInfo, WiFiConnectionError
+from wifi_controller.types import SSIDInfo, WiFiConnectionError
 
 
 def _has_nmcli() -> bool:

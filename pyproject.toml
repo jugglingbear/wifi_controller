@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "wifi-controller"
-version = "0.1.0"
+version = "0.1.1"
 description = "Cross-platform Wi-Fi controller with pluggable providers for macOS, Linux, and Windows."
 authors = ["jugglingbear"]
 license = "MIT"
@@ -46,3 +46,6 @@ src = ["src"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "B", "SIM"]
+
+[tool.poetry.scripts]
+wifi-controller = "wifi_controller.cli:main"

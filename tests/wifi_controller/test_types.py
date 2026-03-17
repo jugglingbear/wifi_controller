@@ -1,10 +1,10 @@
-"""Unit tests for wifi_controller._types (SSIDInfo, WiFiConnectionError)."""
+"""Unit tests for wifi_controller.types (SSIDInfo, WiFiConnectionError)."""
 
 from __future__ import annotations
 
 import pytest
 
-from wifi_controller._types import SSIDInfo, WiFiConnectionError
+from wifi_controller.types import SSIDInfo, WiFiConnectionError
 
 
 # ---------------------------------------------------------------------------

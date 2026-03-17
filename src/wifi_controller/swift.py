@@ -11,7 +11,7 @@ binary is not present.
 Usage::
 
     from wifi_controller import WiFiController
-    from wifi_controller._swift import (
+    from wifi_controller.swift import (
         SwiftSsidScannerCurrentSSID,
         SwiftSsidScannerScan,
         SwiftSsidScannerConnect,
@@ -34,13 +34,13 @@ from pathlib import Path
 
 from bear_tools.lumberjack import Logger
 
-from wifi_controller._abc import (
+from wifi_controller.abc import (
     CurrentSSIDProvider,
     SSIDConnectProvider,
     SSIDDisconnectProvider,
     SSIDScanProvider,
 )
-from wifi_controller._types import SSIDInfo, WiFiConnectionError
+from wifi_controller.types import SSIDInfo, WiFiConnectionError
 
 logger = Logger()
 

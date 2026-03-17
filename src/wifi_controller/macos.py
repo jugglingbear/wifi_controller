@@ -8,18 +8,18 @@ import subprocess
 
 from bear_tools.lumberjack import Logger
 
-from wifi_controller._abc import (
+from wifi_controller.abc import (
     CurrentSSIDProvider,
     SSIDConnectProvider,
     SSIDDisconnectProvider,
     SSIDScanProvider,
 )
-from wifi_controller._types import SSIDInfo, WiFiConnectionError
+from wifi_controller.types import SSIDInfo, WiFiConnectionError
 
 logger = Logger()
 
 
-def _macos_major_version() -> int:
+def macos_major_version() -> int:
     ver = platform.mac_ver()[0]
     return int(ver.split(".")[0]) if ver else 0
 
@@ -32,7 +32,7 @@ class NetworkSetupCurrentSSID(CurrentSSIDProvider):
         return "networksetup"
 
     def is_available(self) -> bool:
-        return _macos_major_version() <= 14
+        return macos_major_version() <= 14
 
     def get_current_ssid(self, interface: str) -> str | None:
         try:
@@ -55,7 +55,7 @@ class IpconfigCurrentSSID(CurrentSSIDProvider):
         return "ipconfig"
 
     def is_available(self) -> bool:
-        return _macos_major_version() >= 15
+        return macos_major_version() >= 15
 
     def get_current_ssid(self, interface: str) -> str | None:
         try:
@@ -75,7 +75,7 @@ class SystemProfilerScan(SSIDScanProvider):
         return "system_profiler"
 
     def is_available(self) -> bool:
-        return _macos_major_version() <= 14
+        return macos_major_version() <= 14
 
     def scan_ssids(self, interface: str, timeout: int = 15) -> list[SSIDInfo]:
         try:

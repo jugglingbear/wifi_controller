@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from wifi_controller._linux import _freq_to_channel
+from wifi_controller.linux import _freq_to_channel
 
 
 class TestFreqToChannel:

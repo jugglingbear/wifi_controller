@@ -7,13 +7,13 @@ from unittest.mock import patch
 import pytest
 
 from wifi_controller import WiFiConnectionError, WiFiController
-from wifi_controller._abc import (
+from wifi_controller.abc import (
     CurrentSSIDProvider,
     SSIDConnectProvider,
     SSIDDisconnectProvider,
     SSIDScanProvider,
 )
-from wifi_controller._types import SSIDInfo
+from wifi_controller.types import SSIDInfo
 
 # -- Fake providers for testing ---------------------------------------------
 

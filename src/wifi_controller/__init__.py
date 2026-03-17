@@ -29,27 +29,27 @@ from pathlib import Path
 
 from bear_tools.lumberjack import Logger
 
-from wifi_controller._abc import (
+from wifi_controller.abc import (
     CurrentSSIDProvider,
     SSIDConnectProvider,
     SSIDDisconnectProvider,
     SSIDScanProvider,
 )
-from wifi_controller._linux import (
+from wifi_controller.linux import (
     IwgetidCurrentSSID,
     NmcliConnect,
     NmcliCurrentSSID,
     NmcliDisconnect,
     NmcliScan,
 )
-from wifi_controller._macos import (
+from wifi_controller.macos import (
     IpconfigCurrentSSID,
     NetworkSetupConnect,
     NetworkSetupCurrentSSID,
     NetworkSetupDisconnect,
     SystemProfilerScan,
 )
-from wifi_controller._types import SSIDInfo, WiFiConnectionError
+from wifi_controller.types import SSIDInfo, WiFiConnectionError
 
 logger = Logger()
 
@@ -276,14 +276,14 @@ class WiFiController:
 
     def _setup_builtin_providers(self, os_name: str) -> None:
         if os_name == "Darwin":
-            self._setup_macos()
+            self._setupmacos()
         elif os_name == "Linux":
-            self._setup_linux()
+            self._setuplinux()
         else:
             logger.warning(f"Unsupported platform: {os_name}. No Wi-Fi providers registered.")
 
-    def _setup_macos(self) -> None:
-        major = _macos_major()
+    def _setupmacos(self) -> None:
+        major = macos_major()
 
         if major <= 14:
             self.register_current_ssid_provider(NetworkSetupCurrentSSID(), priority=0)
@@ -299,7 +299,7 @@ class WiFiController:
         self.register_connect_provider(NetworkSetupConnect(), priority=0)
         self.register_disconnect_provider(NetworkSetupDisconnect(), priority=0)
 
-    def _setup_linux(self) -> None:
+    def _setuplinux(self) -> None:
         has_nmcli = NmcliCurrentSSID().is_available()
         has_iwgetid = IwgetidCurrentSSID().is_available()
 
@@ -352,6 +352,6 @@ class WiFiController:
             pass
 
 
-def _macos_major() -> int:
+def macos_major() -> int:
     ver = platform.mac_ver()[0]
     return int(ver.split(".")[0]) if ver else 0
