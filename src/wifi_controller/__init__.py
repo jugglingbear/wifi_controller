@@ -17,7 +17,6 @@ Usage::
     # Poll for a specific SSID
     found = wifi.scan_for_ssid("TestAP 5678", timeout_sec=30)
 """
-
 from __future__ import annotations
 
 import json
@@ -26,6 +25,7 @@ import subprocess
 import time
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TypeVar
 
 from bear_tools.lumberjack import Logger
 
@@ -53,6 +53,13 @@ from wifi_controller.types import SSIDInfo, WiFiConnectionError
 
 logger = Logger()
 
+from importlib.metadata import PackageNotFoundError, version
+
+try:
+    __version__ = version("wifi-controller")
+except PackageNotFoundError:
+    __version__ = "0.0.0"
+
 __all__ = [
     "WiFiController",
     "SSIDInfo",
@@ -61,8 +68,8 @@ __all__ = [
     "SSIDScanProvider",
     "SSIDConnectProvider",
     "SSIDDisconnectProvider",
+    "__version__",
 ]
-
 
 @dataclass
 class _RegisteredProvider:
@@ -317,12 +324,21 @@ class WiFiController:
                 "Install NetworkManager (nmcli) or wireless-tools (iwgetid)."
             )
 
+
+    ProviderT = TypeVar(
+        "ProviderT",
+        CurrentSSIDProvider,
+        SSIDScanProvider,
+        SSIDConnectProvider,
+        SSIDDisconnectProvider,
+    )
+
     def _resolve(
         self,
         operation: str,
         registry: list[_RegisteredProvider],
-        cached_instance: CurrentSSIDProvider | SSIDScanProvider | SSIDConnectProvider | SSIDDisconnectProvider | None,
-    ) -> CurrentSSIDProvider | SSIDScanProvider | SSIDConnectProvider | SSIDDisconnectProvider | None:
+        cached_instance: ProviderT | None,
+    ) -> ProviderT | None:
         if cached_instance is not None:
             return cached_instance
 

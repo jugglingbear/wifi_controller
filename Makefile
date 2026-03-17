@@ -61,7 +61,7 @@ install:  ## Install project dependencies via Poetry
 # ── Testing ──────────────────────────────────────────────
 
 .PHONY: test
-test:  ## Run unit tests
+test:  install  ## Run unit tests
 	@echo "🧪 Running unit tests"
 	$(POETRY) run pytest -v $(TEST_DIR)
 

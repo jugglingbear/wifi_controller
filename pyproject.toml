@@ -30,6 +30,7 @@ packages = [{ include = "wifi_controller", from = "src" }]
 [tool.poetry.dependencies]
 python = ">=3.10,<4.0"
 bear-tools = "^0.1.37"
+click = "^8.3.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = ">=7.0"
