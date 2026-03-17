@@ -1,0 +1,89 @@
+@startuml component_diagram
+!theme plain
+
+title wifi_controller — Component & Package Diagram
+
+skinparam component {
+    BackgroundColor<<pypi>> #FEFECE
+    BackgroundColor<<extras>> #E8F5E9
+    BackgroundColor<<os>> #E3F2FD
+}
+
+package "PyPI: wifi-controller" <<pypi>> {
+
+    component "wifi_controller" as pkg {
+        [__init__.py\nWiFiController] as init
+        [_types.py\nSSIDInfo, WiFiConnectionError] as types
+        [_abc.py\nProvider ABCs] as abc
+        [_macos.py\nmacOS providers] as macos
+        [_linux.py\nLinux providers] as linux
+        [_swift.py\nSwift binary wrappers] as swift
+    }
+
+    init --> types
+    init --> abc
+    init --> macos : import\n(Darwin providers)
+    init --> linux : import\n(Linux providers)
+    init --> swift : import\n(Swift wrappers)
+    abc --> types
+    macos --> abc
+    macos --> types
+    linux --> abc
+    linux --> types
+    swift --> abc
+    swift --> types
+}
+
+package "Git repo only (extras/)" <<extras>> {
+    component "ssid_scanner" as scanner {
+        [scan.swift\nCoreWLAN + CoreLocation] as scan_swift
+        [Makefile\nbuild + sign] as makefile
+        [*.plist\nentitlements + info] as plists
+    }
+    makefile --> scan_swift
+    makefile --> plists
+}
+
+package "Operating System" <<os>> {
+    component "macOS" as macos_os {
+        [networksetup] as ns
+        [ipconfig] as ipc
+        [system_profiler] as sp
+        [CoreWLAN\n(via ssid_scanner)] as cwlan
+    }
+
+    component "Linux" as linux_os {
+        [nmcli\n(NetworkManager)] as nmcli
+        [iwgetid\n(wireless-tools)] as iwgetid
+    }
+}
+
+' macOS providers → OS tools
+macos --> ns
+macos --> ipc
+macos --> sp
+
+' Linux providers → OS tools
+linux --> nmcli
+linux --> iwgetid
+
+' Swift wrappers → binary → CoreWLAN
+swift --> scanner : subprocess
+scanner --> cwlan
+
+note bottom of pkg
+  **pip install wifi-controller**
+  Ships: __init__, _types, _abc,
+  _macos, _linux, _swift
+  (all pure Python)
+end note
+
+note bottom of scanner
+  **git clone + make**
+  macOS only. Requires Xcode CLI tools
+  + Apple Development certificate.
+  Builds a signed .app bundle that
+  has Location Services entitlement.
+end note
+
+@enduml

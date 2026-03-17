@@ -1,0 +1,92 @@
+@startuml sequence_diagram
+!theme plain
+
+title wifi_controller — Provider Resolution & Operation Flow
+
+actor "Caller" as caller
+participant "WiFiController" as ctrl
+participant "_RegisteredProvider[]" as registry
+participant "Provider (ABC)" as provider
+participant "OS Tool\n(networksetup, nmcli,\nssid_scanner, ...)" as tool
+
+== Initialization ==
+
+caller -> ctrl : WiFiController(interface="en0")
+activate ctrl
+ctrl -> ctrl : _detect_interface(os_name)
+ctrl -> ctrl : _setup_builtin_providers(os_name)
+note right of ctrl
+  Registers platform-appropriate
+  providers at priority 0
+end note
+ctrl --> caller
+deactivate ctrl
+
+== Registration (optional — e.g., Swift scanner) ==
+
+caller -> ctrl : register_scan_provider(SwiftSsidScannerScan(binary), priority=10)
+ctrl -> registry : append(_RegisteredProvider(provider, 10))
+ctrl -> ctrl : _resolved_scan = None  (invalidate cache)
+
+== scan() — First Call (Provider Resolution) ==
+
+caller -> ctrl : scan(timeout=15)
+activate ctrl
+
+ctrl -> ctrl : _resolve("scan", _scan_providers, None)
+activate ctrl #LightBlue
+note right of ctrl
+  cached_instance is None → must discover
+end note
+
+ctrl -> registry : sort by priority DESC
+loop each provider (highest priority first)
+    ctrl -> provider : is_available()
+    alt available
+        ctrl --> ctrl : cache provider name
+        ctrl --> ctrl : return provider
+    else not available
+        ctrl -> registry : try next
+    end
+end
+deactivate ctrl
+
+ctrl -> provider : scan_ssids(interface, timeout)
+activate provider
+provider -> tool : subprocess.run(["ssid_scanner", "--scan", "--json"])
+tool --> provider : JSON stdout
+provider --> ctrl : list[SSIDInfo]
+deactivate provider
+
+ctrl --> caller : list[SSIDInfo]
+deactivate ctrl
+
+== scan() — Subsequent Calls (Cached) ==
+
+caller -> ctrl : scan(timeout=15)
+activate ctrl
+ctrl -> ctrl : _resolve("scan", ..., cached_provider)
+note right of ctrl
+  cached_instance is not None → skip discovery
+end note
+ctrl -> provider : scan_ssids(interface, timeout)
+provider -> tool : subprocess.run(...)
+tool --> provider : output
+provider --> ctrl : list[SSIDInfo]
+ctrl --> caller : list[SSIDInfo]
+deactivate ctrl
+
+== connect() — Error Path ==
+
+caller -> ctrl : connect("MySSID", "wrong_password")
+activate ctrl
+ctrl -> provider : connect("MySSID", "wrong_password", interface, timeout)
+activate provider
+provider -> tool : subprocess.run(["networksetup", "-setairportnetwork", ...])
+tool --> provider : error output
+provider --> ctrl : **raise WiFiConnectionError**
+deactivate provider
+ctrl --> caller : WiFiConnectionError
+deactivate ctrl
+
+@enduml

@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environment
+.venv/
+
+# Poetry
+poetry.lock
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Coverage
+.coverage
+htmlcov/
+coverage.xml
+
+# Type checkers
+.mypy_cache/
+
+# OS
+.DS_Store
+Thumbs.db

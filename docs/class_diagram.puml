@@ -1,0 +1,135 @@
+@startuml class_diagram
+!theme plain
+skinparam linetype ortho
+skinparam classAttributeIconSize 0
+skinparam groupInheritance 2
+
+title wifi_controller — Class Diagram
+
+package "wifi_controller._types" {
+    class SSIDInfo <<dataclass>> {
+        +ssid : str
+        +bssid : str
+        +rssi : int
+        +channel : int
+    }
+
+    class WiFiConnectionError <<Exception>>
+}
+
+package "wifi_controller._abc" {
+    abstract class CurrentSSIDProvider {
+        +{abstract} name : str
+        +{abstract} is_available() : bool
+        +{abstract} get_current_ssid(interface) : str | None
+    }
+
+    abstract class SSIDScanProvider {
+        +{abstract} name : str
+        +{abstract} is_available() : bool
+        +{abstract} scan_ssids(interface, timeout) : list[SSIDInfo]
+    }
+
+    abstract class SSIDConnectProvider {
+        +{abstract} name : str
+        +{abstract} is_available() : bool
+        +{abstract} connect(ssid, password, interface, timeout) : None
+    }
+
+    abstract class SSIDDisconnectProvider {
+        +{abstract} name : str
+        +{abstract} is_available() : bool
+        +{abstract} disconnect(interface) : None
+    }
+}
+
+package "wifi_controller (orchestrator)" {
+    class WiFiController {
+        -_current_providers : list[_RegisteredProvider]
+        -_scan_providers : list[_RegisteredProvider]
+        -_connect_providers : list[_RegisteredProvider]
+        -_disconnect_providers : list[_RegisteredProvider]
+        -_interface : str
+        -_os_name : str
+        -_cache : dict
+        --
+        +__init__(interface, cache_path)
+        +platform_info : str
+        +interface_name : str
+        +register_current_ssid_provider(provider, priority)
+        +register_scan_provider(provider, priority)
+        +register_connect_provider(provider, priority)
+        +register_disconnect_provider(provider, priority)
+        +get_current_ssid() : str | None
+        +scan(timeout) : list[SSIDInfo]
+        +connect(ssid, password, timeout)
+        +disconnect()
+        +scan_for_ssid(ssid, timeout_sec, invert) : bool
+        +is_connected() : bool
+        +is_wifi_enabled() : bool
+        -_detect_interface(os_name) : str
+        -_setup_builtin_providers(os_name)
+        -_resolve(operation, registry, cached) : Provider | None
+    }
+
+    class _RegisteredProvider <<dataclass>> {
+        +provider : Provider
+        +priority : int
+    }
+}
+
+package "wifi_controller._macos" <<macOS>> #LightYellow {
+    class NetworkSetupCurrentSSID
+    class IpconfigCurrentSSID
+    class SystemProfilerScan
+    class NetworkSetupConnect
+    class NetworkSetupDisconnect
+}
+
+package "wifi_controller._linux" <<Linux>> #LightBlue {
+    class NmcliCurrentSSID
+    class NmcliScan
+    class NmcliConnect
+    class NmcliDisconnect
+    class IwgetidCurrentSSID
+}
+
+package "wifi_controller._swift" <<macOS 15+ extras>> #LightGreen {
+    class SwiftSsidScannerCurrentSSID
+    class SwiftSsidScannerScan
+    class SwiftSsidScannerConnect
+    class SwiftSsidScannerDisconnect
+}
+
+' Inheritance — macOS
+NetworkSetupCurrentSSID  -up-|> CurrentSSIDProvider
+IpconfigCurrentSSID      -up-|> CurrentSSIDProvider
+SystemProfilerScan       -up-|> SSIDScanProvider
+NetworkSetupConnect      -up-|> SSIDConnectProvider
+NetworkSetupDisconnect   -up-|> SSIDDisconnectProvider
+
+' Inheritance — Linux
+NmcliCurrentSSID  -up-|> CurrentSSIDProvider
+NmcliScan         -up-|> SSIDScanProvider
+NmcliConnect      -up-|> SSIDConnectProvider
+NmcliDisconnect   -up-|> SSIDDisconnectProvider
+IwgetidCurrentSSID -up-|> CurrentSSIDProvider
+
+' Inheritance — Swift
+SwiftSsidScannerCurrentSSID -up-|> CurrentSSIDProvider
+SwiftSsidScannerScan        -up-|> SSIDScanProvider
+SwiftSsidScannerConnect     -up-|> SSIDConnectProvider
+SwiftSsidScannerDisconnect  -up-|> SSIDDisconnectProvider
+
+' Composition
+WiFiController *-- _RegisteredProvider
+_RegisteredProvider --> CurrentSSIDProvider
+_RegisteredProvider --> SSIDScanProvider
+_RegisteredProvider --> SSIDConnectProvider
+_RegisteredProvider --> SSIDDisconnectProvider
+
+WiFiController ..> SSIDInfo : returns
+SSIDConnectProvider ..> WiFiConnectionError : raises
+SSIDScanProvider ..> SSIDInfo : returns
+
+@enduml

@@ -1,0 +1,48 @@
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "wifi-controller"
+version = "0.1.0"
+description = "Cross-platform Wi-Fi controller with pluggable providers for macOS, Linux, and Windows."
+authors = ["jugglingbear"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/jugglingbear/wifi_controller"
+repository = "https://github.com/jugglingbear/wifi_controller"
+keywords = ["wifi", "wireless", "macos", "linux", "network"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: System :: Networking",
+]
+packages = [{ include = "wifi_controller", from = "src" }]
+
+[tool.poetry.dependencies]
+python = ">=3.10,<4.0"
+bear-tools = "^0.1.37"
+
+[tool.poetry.group.dev.dependencies]
+pytest = ">=7.0"
+pytest-cov = ">=4.0"
+ruff = ">=0.4"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 120
+src = ["src"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM"]
