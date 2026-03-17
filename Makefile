@@ -93,6 +93,14 @@ docs:  ## 📐 Render PlantUML diagrams to SVG
 	@echo "📐 Rendering PlantUML diagrams"
 	$(PLANTUML) -tsvg $(DOCS_DIR)/*.puml
 
+# ── Packaging / Distribution ─────────────────────────────
+
+.PHONY: publish
+publish:  ## 📦 Build and publish package to PyPI
+	@echo "📦 Building release package for PyPI"
+	$(POETRY) build
+	$(POETRY) publish
+
 # ── Extras (opt-in) ───────────────────────────────────────
 
 .PHONY: ssid-scanner
