@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "wifi-controller"
-version = "0.1.1"
+version = "0.1.2"
 description = "Cross-platform Wi-Fi controller with pluggable providers for macOS, Linux, and Windows."
 authors = ["jugglingbear"]
 license = "MIT"
@@ -29,7 +29,7 @@ packages = [{ include = "wifi_controller", from = "src" }]
 
 [tool.poetry.dependencies]
 python = ">=3.10,<4.0"
-bear-tools = "^0.1.37"
+bear-tools = "^0.2.0"
 click = "^8.3.1"
 
 [tool.poetry.group.dev.dependencies]

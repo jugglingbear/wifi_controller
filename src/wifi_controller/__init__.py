@@ -297,7 +297,7 @@ class WiFiController:
             self.register_scan_provider(SystemProfilerScan(), priority=0)
         else:
             self.register_current_ssid_provider(IpconfigCurrentSSID(), priority=0)
-            logger.warning(
+            logger.info(
                 f"No built-in SSID scan provider for macOS {platform.mac_ver()[0]}. "
                 "SSIDs are redacted by the OS. Register a scan provider "
                 "(e.g., SwiftSsidScanner from extras/) to enable scanning."
