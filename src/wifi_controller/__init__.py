@@ -232,7 +232,7 @@ class WiFiController:
         logger.info(f'Scanning for SSID: "{ssid}" (timeout: {timeout_sec:.2f} seconds)')
         start = time.perf_counter()
         while time.perf_counter() - start <= timeout_sec:
-            networks = self.scan(timeout=5)
+            networks = self.scan(timeout=15)
             found = any(n.ssid == ssid for n in networks)
             if found and not invert:
                 return True
