@@ -6,6 +6,8 @@ import contextlib
 import shutil
 import subprocess
 
+from bear_tools.lumberjack import Logger
+
 from wifi_controller.abc import (
     CurrentSSIDProvider,
     SSIDConnectProvider,
@@ -13,6 +15,8 @@ from wifi_controller.abc import (
     SSIDScanProvider,
 )
 from wifi_controller.types import SSIDInfo, WiFiConnectionError
+
+logger = Logger()
 
 
 def _has_nmcli() -> bool:
@@ -60,12 +64,20 @@ class NmcliScan(SSIDScanProvider):
 
     def scan_ssids(self, interface: str, timeout: int = 15) -> list[SSIDInfo]:
         try:
-            # Trigger a fresh scan
-            subprocess.run(
+            # A rescan is gated behind polkit and can be denied on headless/SSH sessions ("not authorized"),
+            # which would otherwise silently yield a stale cache. Warn so that's diagnosable.
+            rescan = subprocess.run(
                 ["nmcli", "dev", "wifi", "rescan", "ifname", interface],
                 capture_output=True,
+                text=True,
                 timeout=timeout,
+                check=False,
             )
+            if rescan.returncode != 0:
+                logger.warning(
+                    f"'nmcli dev wifi rescan' failed (exit {rescan.returncode}); Wi-Fi scan results may be "
+                    f"stale: {rescan.stderr.strip()}"
+                )
             output = subprocess.check_output(
                 ["nmcli", "-t", "-f", "ssid,bssid,signal,freq", "dev", "wifi", "list", "ifname", interface],
                 text=True,
