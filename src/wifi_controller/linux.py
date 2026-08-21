@@ -120,6 +120,9 @@ class NmcliConnect(SSIDConnectProvider):
         return _has_nmcli()
 
     def connect(self, ssid: str, password: str, interface: str, timeout: int = 15) -> None:
+        # purge any stale/incomplete profile for this SSID to avoid key-mgmt missing errors
+        subprocess.run(["nmcli", "con", "delete", "id", ssid], capture_output=True)
+
         try:
             result = subprocess.run(
                 ["nmcli", "dev", "wifi", "connect", ssid, "password", password, "ifname", interface],
